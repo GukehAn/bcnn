@@ -31,7 +31,7 @@ include_directories (
 file(GLOB SRC *.cc *.c)
 add_executable(yolo-example ${SRC})
 
-find_package(OpenCV 3.0.0)
+find_package(OpenCV)
 if (OpenCV_FOUND AND USE_OPENCV)
     message(STATUS "[bcnn] [examples/yolo] Found OpenCV")
     add_definitions(-DUSE_OPENCV)
