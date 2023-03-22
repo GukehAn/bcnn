@@ -155,9 +155,15 @@ void bcnn_forward_activation_layer_cpu(bcnn_net *net, bcnn_node *node) {
     }
     int sz = bcnn_tensor_size(dst_tensor);
     dst_tensor->data = src_tensor->data;
-    bcnn_forward_activation_cpu(dst_tensor->data, sz, weights->data,
-                                dst_tensor->w * dst_tensor->h, dst_tensor->c,
-                                param->activation);
+    if (param->activation == BCNN_ACT_PRELU) {
+        bcnn_forward_activation_cpu(dst_tensor->data, sz, weights->data,
+                                    dst_tensor->w * dst_tensor->h,
+                                    dst_tensor->c, param->activation);
+    } else {
+        bcnn_forward_activation_cpu(dst_tensor->data, sz, NULL,
+                                    dst_tensor->w * dst_tensor->h,
+                                    dst_tensor->c, param->activation);
+    }
 
     return;
 }
@@ -234,10 +240,16 @@ void bcnn_backward_activation_layer_cpu(bcnn_net *net, bcnn_node *node) {
         weights = &net->tensors[node->src[1]];
     }
     int sz = bcnn_tensor_size(dst_tensor);
-    bcnn_backward_activation_cpu(dst_tensor->data, dst_tensor->grad_data, sz,
-                                 weights->data, weights->grad_data,
-                                 dst_tensor->w * dst_tensor->h, dst_tensor->c,
-                                 param->activation);
+    if (param->activation == BCNN_ACT_PRELU) {
+        bcnn_backward_activation_cpu(dst_tensor->data, dst_tensor->grad_data,
+                                     sz, weights->data, weights->grad_data,
+                                     dst_tensor->w * dst_tensor->h,
+                                     dst_tensor->c, param->activation);
+    } else {
+        bcnn_backward_activation_cpu(
+            dst_tensor->data, dst_tensor->grad_data, sz, NULL, NULL,
+            dst_tensor->w * dst_tensor->h, dst_tensor->c, param->activation);
+    }
     src_tensor->grad_data = dst_tensor->grad_data;
 
     return;
